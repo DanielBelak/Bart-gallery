@@ -22,35 +22,35 @@ const PopUpCategory = ({ popUpState, setPopUpState, gallery, setUpdate }) => {
   const inputTextHandler = (e) => {
     setNewCategoryInputText(e.target.value);
   };
-  //Check if new category name is not empty
+
   const submitHandler = (e) => {
     e.preventDefault();
+    //Check if new category name is not empty
     if (newCategoryInputText === "") {
       alert("Zadajte názov kategórie. Pole je prázdne");
       inputRef.current.focus();
+      return;
     }
+
     //Check for "/" in the name(forbidden)
     for (let i = 0; i < newCategoryInputText.length; i++) {
       if (newCategoryInputText[i] === "/") {
         alert("Názov nemôže obsahovať znak /");
         inputRef.current.focus();
-      } else {
-        setCategoryNameHandler();
+        return;
       }
     }
     //Check for duplicate name
-    for (let i = 0; i < gallery.length; i++) {
-      if (gallery[i].name === newCategoryInputText) {
-        alert(
-          "Galéria s týmto názvom je už vytvorená, prosím zvoľte iný názov."
-        );
-        inputRef.current.focus();
-      } else {
-        setCategoryNameHandler();
-      }
+
+    let galleryNames = gallery.map(({ name }) => name.toUpperCase());
+    console.log(galleryNames);
+    if (galleryNames.includes(newCategoryInputText.toUpperCase())) {
+      alert("Galéria s týmto názvom je už vytvorená, prosím zvoľte iný názov.");
+      inputRef.current.focus();
+    } else {
+      setCategoryNameHandler();
     }
   };
-
   //Post new category to the server
   const setCategoryNameHandler = () => {
     axios
@@ -61,6 +61,7 @@ const PopUpCategory = ({ popUpState, setPopUpState, gallery, setUpdate }) => {
         //Update displayed galleries
         setUpdate(Math.random);
         setPopUpState({ ...popUpState, category: !popUpState.category });
+        setNewCategoryInputText("");
       })
       .catch((err) => console.log(err));
   };

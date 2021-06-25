@@ -1,8 +1,16 @@
-# Getting Started with Create React App
+# Title
+
+React gallery
+
+## Description
+
+This application is used to store and organize your photos. On the landing page you can see named galleries and the number of photos they contain. There is also a section for creating new galleries. Application prevents you from creating two galleries with the same name. It is also banned to use a sign '/' in the name of the gallery. Click on the gallery to see its photos. You can see the enlarged version of the photo by clicking on it. You can browse through gallery using arrows on your keyboard or arrows next to the photo. Adding new photos to the gallery is similar to creating a new gallery. You can either select your files from your computer or drag them to drop area. Please, be aware that only .jpg file format is allowed. It is possible to add more photos at the same time.
+
+### Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+### Available Scripts
 
 In the project directory, you can run:
 

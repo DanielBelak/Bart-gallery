@@ -57,7 +57,9 @@ const Gallery = ({
     firstImage = firstImage[0].fullpath;
     setBackground("http://api.programator.sk/images/600x320/" + firstImage);
   };
-
+  useEffect(() => {
+    axios.delete("http://api.programator.sk/gallery/wild");
+  });
   return (
     <Container>
       <GalleryWrapper>
