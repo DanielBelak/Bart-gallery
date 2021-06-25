@@ -15,6 +15,7 @@ function App() {
   const [photos, setPhotos] = useState("");
   const [background, setBackground] = useState(undefined);
   const [title, setTitle] = useState("Kategórie");
+  const [update, setUpdate] = useState("");
 
   return (
     <div className="App">
@@ -23,6 +24,7 @@ function App() {
         background={background}
         title={title}
         setPhotos={setPhotos}
+        setTitle={setTitle}
       />
       <Gallery
         setBackground={setBackground}
@@ -33,19 +35,19 @@ function App() {
         setGallery={setGallery}
         photos={photos}
         setPhotos={setPhotos}
+        update={update}
       />
       <PopUpCategory
         popUpState={popUpState}
         setPopUpState={setPopUpState}
-        setGallery={setGallery}
+        gallery={gallery}
+        setUpdate={setUpdate}
       />
       <PopUpInsert
         popUpState={popUpState}
         setPopUpState={setPopUpState}
         title={title}
-        setPhotos={setPhotos}
-        setGallery={setGallery}
-        setBackground={setBackground}
+        setUpdate={setUpdate}
       />
     </div>
   );

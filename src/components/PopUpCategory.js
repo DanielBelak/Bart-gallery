@@ -3,8 +3,13 @@ import styled from "styled-components";
 import closeIcon from "../icons/close_icon.svg";
 import plusIcon from "../icons/plus_icon.svg";
 import axios from "axios";
+import { PopUp } from "./StyledComponents/PopUp.js";
+import { Overlay } from "./StyledComponents/Overlay.js";
+import { CloseButtonArea } from "./StyledComponents/CloseButtonArea.js";
+import { CloseButton } from "./StyledComponents/CloseButton.js";
+import { AddButton } from "./StyledComponents/AddButton.js";
 
-const PopUpCategory = ({ popUpState, setPopUpState, setGallery }) => {
+const PopUpCategory = ({ popUpState, setPopUpState, gallery, setUpdate }) => {
   const [newCategoryInputText, setNewCategoryInputText] = useState("");
   const inputRef = useRef(null);
 
@@ -33,7 +38,17 @@ const PopUpCategory = ({ popUpState, setPopUpState, setGallery }) => {
         setCategoryNameHandler();
       }
     }
-    setNewCategoryInputText("");
+    //Check for duplicate name
+    for (let i = 0; i < gallery.length; i++) {
+      if (gallery[i].name === newCategoryInputText) {
+        alert(
+          "Galéria s týmto názvom je už vytvorená, prosím zvoľte iný názov."
+        );
+        inputRef.current.focus();
+      } else {
+        setCategoryNameHandler();
+      }
+    }
   };
 
   //Post new category to the server
@@ -43,35 +58,50 @@ const PopUpCategory = ({ popUpState, setPopUpState, setGallery }) => {
         name: newCategoryInputText,
       })
       .then(() => {
-        updateGallery();
+        //Update displayed galleries
+        setUpdate(Math.random);
         setPopUpState({ ...popUpState, category: !popUpState.category });
       })
       .catch((err) => console.log(err));
   };
-  //Update displayed galleries
-  const updateGallery = () => {
-    axios
-      .get("http://api.programator.sk/gallery")
-      .then((resp) => {
-        setGallery(resp.data.galleries);
-      })
-      .catch((err) => console.log(err));
+
+  //Close pop by pressing escape
+  useEffect(() => {
+    const close = (e) => {
+      if (e.key === "Escape" && popUpState.category === true) {
+        closePopUp();
+      }
+    };
+    window.addEventListener("keydown", close);
+    return () => {
+      window.removeEventListener("keydown", close);
+    };
+  }, [popUpState.category]);
+
+  const closePopUp = () => {
+    setPopUpState({ ...popUpState, category: !popUpState.category });
+    setNewCategoryInputText("");
   };
 
   return (
     <>
-      <div className={`overlay ${popUpState.category ? "active" : ""}`}></div>
-      <div className={`pop-up  ${popUpState.category ? "active" : ""}`}>
-        <div
-          className="close-btn"
+      <Overlay
+        className={` ${popUpState.category ? "active" : ""}`}
+        onClick={() => {
+          closePopUp();
+        }}
+      ></Overlay>
+      <PopUp className={`${popUpState.category ? "active" : ""}`}>
+        <CloseButtonArea
           onClick={() => {
-            setPopUpState({ ...popUpState, category: !popUpState.category });
-            setNewCategoryInputText("");
+            closePopUp();
           }}
         >
-          <img src={closeIcon} alt="close X" />
-          zavrieť
-        </div>
+          <CloseButton>
+            <img src={closeIcon} alt="close X" />
+            zavrieť
+          </CloseButton>
+        </CloseButtonArea>
         <NewCategory>
           <h2>Pridať kategóriu</h2>
           <CategoryForm
@@ -87,13 +117,13 @@ const PopUpCategory = ({ popUpState, setPopUpState, setGallery }) => {
               value={newCategoryInputText}
               disabled={!popUpState.category}
             />
-            <button className="add-btn" type="submit">
+            <AddButton type="submit">
               <img src={plusIcon} alt="plus icon " />
               Pridať
-            </button>
+            </AddButton>
           </CategoryForm>
         </NewCategory>
-      </div>
+      </PopUp>
     </>
   );
 };

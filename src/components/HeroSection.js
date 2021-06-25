@@ -1,10 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 import arrow_back from "../icons/back_icon.svg";
+import { Container } from "./StyledComponents/Container.js";
 
-const HeroSection = ({ background, title, setPhotos }) => {
+const HeroSection = ({ background, title, setTitle, setPhotos }) => {
   //handle the arrow-back functionality
   const goBackHandler = () => {
+    setTitle("Kategórie");
     window.history.back();
     setPhotos("");
   };
@@ -13,7 +15,7 @@ const HeroSection = ({ background, title, setPhotos }) => {
     <div>
       <Background style={{ backgroundImage: `url(${background})` }}>
         <Filter>
-          <div className="container">
+          <Container>
             <Title>
               <MainTitle>Fotogaléria</MainTitle>
               <SubTitle>
@@ -28,7 +30,7 @@ const HeroSection = ({ background, title, setPhotos }) => {
                 {title}
               </SubTitle>
             </Title>
-          </div>
+          </Container>
         </Filter>
       </Background>
     </div>
@@ -43,6 +45,8 @@ const Background = styled.div`
   background-repeat: no-repeat;
   background-size: cover;
   position: relative;
+  transition: all 0.4s ease-in-out;
+  animation: fadein 2s;
 `;
 const Filter = styled.div`
   position: absolute;
@@ -56,13 +60,7 @@ const Filter = styled.div`
 const Title = styled.div`
   width: 100%;
   position: absolute;
-  bottom: calc(calc(20em / 2) + 3em);
-  @media (max-width: 600px) {
-    bottom: calc(calc(25em / 2) + 3em);
-  }
-  @media (max-width: 350px) {
-    bottom: calc(calc(15em / 2) + 3em);
-  }
+  top: 35%;
 `;
 
 const MainTitle = styled.h1`

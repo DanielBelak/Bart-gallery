@@ -1,18 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import closeIcon from "../icons/close_icon.svg";
 import cameraIcon from "../icons/photo_icon.svg";
 import plusIcon from "../icons/plus_icon.svg";
 import axios from "axios";
+import { PopUp } from "./StyledComponents/PopUp.js";
+import { Overlay } from "./StyledComponents/Overlay.js";
+import { CloseButtonArea } from "./StyledComponents/CloseButtonArea.js";
+import { CloseButton } from "./StyledComponents/CloseButton.js";
+import { AddButton } from "./StyledComponents/AddButton.js";
 
-const PopUpInsert = ({
-  popUpState,
-  setPopUpState,
-  title,
-  setPhotos,
-  setGallery,
-  setBackground,
-}) => {
+const PopUpInsert = ({ popUpState, setPopUpState, title, setUpdate }) => {
   const [uploadedFiles, setUploadedFiles] = useState("");
   const [photoNumber, setPhotoNumber] = useState(0);
 
@@ -23,15 +21,30 @@ const PopUpInsert = ({
   //Save dropped photos as a state
   const fileDropHandler = (e) => {
     e.preventDefault();
-    setUploadedFiles(e.dataTransfer.files);
-    setPhotoNumber(e.dataTransfer.files.length);
+    fileFormatCheck(e.dataTransfer.files);
   };
-  //Save dropped photos as a state
+  //Save selected photos as a state
   const fileSelectHandler = () => {
     let imagedata = document.querySelector('input[type="file"]').files;
-    setUploadedFiles(imagedata);
-    setPhotoNumber(imagedata.length);
+    fileFormatCheck(imagedata);
   };
+  //Check for correct file format
+  const fileFormatCheck = (files) => {
+    for (let i = 0; i < files.length; i++) {
+      if (files[i].type !== "image/jpeg") {
+        alert(
+          "Nesprávny formát. Použite prosím iba fotografie vo formáte JPG."
+        );
+        setUploadedFiles("");
+        setPhotoNumber(0);
+        break;
+      } else {
+        setUploadedFiles(files);
+        setPhotoNumber(files.length);
+      }
+    }
+  };
+
   //Create a formData object to store uploaded photos
   const postPhotosHandler = (e) => {
     e.preventDefault();
@@ -47,46 +60,59 @@ const PopUpInsert = ({
         },
       })
       .then(() => {
-        updatePhotos();
-      })
-      .catch((err) => console.log(err));
-  };
-  //Display new added photos in a specific gallery
-  const updatePhotos = () => {
-    axios
-      .get(`http://api.programator.sk/gallery/${title}`)
-      .then((resp) => {
-        setPhotos(resp.data.images);
-        let firstImage = resp.data.images[0].fullpath;
-        setBackground("http://api.programator.sk/images/600x400/" + firstImage);
-      })
-      .catch((err) => console.log(err));
-    axios
-      .get("http://api.programator.sk/gallery")
-      .then((resp) => {
-        setGallery(resp.data.galleries);
+        //Display new added photos in a specific gallery
+        setUpdate(Math.random);
       })
       .catch((err) => console.log(err));
   };
 
+  //Close pop by pressing escape
+  useEffect(() => {
+    const close = (e) => {
+      if (e.key === "Escape" && popUpState.photos === true) {
+        closePopUp();
+      }
+    };
+    window.addEventListener("keydown", close);
+    return () => {
+      window.removeEventListener("keydown", close);
+    };
+  }, [popUpState.photos]);
+
+  const closePopUp = () => {
+    setPopUpState({ ...popUpState, photos: !popUpState.photos });
+    setUploadedFiles("");
+    setPhotoNumber(0);
+  };
+
   return (
     <>
-      <div className={`overlay ${popUpState.photos ? "active" : ""}`}></div>
-      <div className={`pop-up  ${popUpState.photos ? "active" : ""}`}>
-        <CloseBtn
+      <Overlay
+        className={` ${popUpState.photos ? "active" : ""}`}
+        onClick={closePopUp}
+      ></Overlay>
+      <PopUp className={`${popUpState.photos ? "active" : ""}`}>
+        <CloseButtonArea
           onClick={() => {
-            setPopUpState({ ...popUpState, photos: !popUpState.photos });
-            setPhotoNumber(0);
+            closePopUp();
           }}
         >
-          <img src={closeIcon} alt="close button" />
-          zavrieť
-        </CloseBtn>
+          <CloseButton>
+            <img src={closeIcon} alt="close X" />
+            zavrieť
+          </CloseButton>
+        </CloseButtonArea>
         <PhotosForm
           onSubmit={(e) => {
-            setPopUpState({ ...popUpState, photos: !popUpState.photos });
-            postPhotosHandler(e);
-            setPhotoNumber(0);
+            if (uploadedFiles === "") {
+              e.preventDefault();
+              alert(
+                "Neboli vybraté žiadne fotografie. Vyberte súbory vo formáte JPG alebo ich pretiahnite do vyznačenej oblasti."
+              );
+            } else {
+              closePopUp();
+              postPhotosHandler(e);
+            }
           }}
         >
           <h2>Pridať fotky</h2>
@@ -111,15 +137,15 @@ const PopUpInsert = ({
             <UploadInfo
               style={{ display: photoNumber === 0 ? "none" : "block" }}
             >
-              {photoNumber} photos have been chosen
+              Počet nahratých fotiek: {photoNumber}
             </UploadInfo>
           </DragArea>
-          <AddButton type="submit" className="add-btn">
+          <AddButtonInsert type="submit">
             <img src={plusIcon} alt="plus icon " />
             Pridať
-          </AddButton>
+          </AddButtonInsert>
         </PhotosForm>
-      </div>
+      </PopUp>
     </>
   );
 };
@@ -193,7 +219,7 @@ const DragArea = styled.div`
   }
 `;
 
-const AddButton = styled.button`
+const AddButtonInsert = styled(AddButton)`
   align-self: flex-end;
   margin-top: 2em;
 `;

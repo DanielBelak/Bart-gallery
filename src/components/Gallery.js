@@ -7,6 +7,7 @@ import PhotoUnit from "./PhotoUnit";
 import PopUpSlider from "./PopUpSlider";
 import axios from "axios";
 import { Switch, Route, useLocation } from "react-router-dom";
+import { Container } from "./StyledComponents/Container.js";
 
 const Gallery = ({
   popUpState,
@@ -17,52 +18,48 @@ const Gallery = ({
   setGallery,
   photos,
   setPhotos,
+  update,
 }) => {
   const [photoIndex, setPhotoIndex] = useState("");
   let location = useLocation();
-
-  // When at homepage, getting the galleries and set the first image as a  background//
+  let address = location.pathname;
+  if (address === "/") {
+    address = "";
+  }
 
   useEffect(() => {
-    location.pathname === "/" &&
-      axios
-        .get("http://api.programator.sk/gallery")
-        .then((resp) => {
+    axios
+      .get(`http://api.programator.sk/gallery${address}`)
+      .then((resp) => {
+        // When at homepage, getting the galleries and set the first image as a  background//
+        if (location.pathname === "/") {
           setGallery(resp.data.galleries);
           setHomepageBackground(resp);
           setTitle("Kategórie");
-        })
-        .catch((err) => console.log(err));
-  }, [location.pathname]);
-
-  // When at subpage, getting the photos and set the first image as a  background//
-
-  useEffect(() => {
-    location.pathname !== "/" &&
-      axios
-        .get(`http://api.programator.sk/gallery${location.pathname}`)
-        .then((resp) => {
+        } else {
+          // When at subpage, getting the photos and set the first image as a  background//
           setPhotos(resp.data.images);
-          setTitle(location.pathname.substring(1));
+          setTitle(address.substring(1));
           setSubpageBackground(resp);
-        })
-        .catch((err) => console.log(err));
-  }, [location.pathname]);
+        }
+      })
+      .catch((err) => console.log(err));
+  }, [location.pathname, update]);
 
   const setSubpageBackground = (resp) => {
     let firstImage = resp.data.images[0].fullpath;
-    setBackground("http://api.programator.sk/images/600x400/" + firstImage);
+    setBackground("http://api.programator.sk/images/600x320/" + firstImage);
   };
 
   const setHomepageBackground = (resp) => {
     let firstImage = resp.data.galleries.map((unit) => unit.image);
     firstImage = firstImage.filter((element) => element !== undefined);
     firstImage = firstImage[0].fullpath;
-    setBackground("http://api.programator.sk/images/600x400/" + firstImage);
+    setBackground("http://api.programator.sk/images/600x320/" + firstImage);
   };
 
   return (
-    <div className="container">
+    <Container>
       <GalleryWrapper>
         <Switch>
           <Route path="/" exact>
@@ -104,17 +101,18 @@ const Gallery = ({
           </Route>
         </Switch>
       </GalleryWrapper>
-    </div>
+    </Container>
   );
 };
 export default Gallery;
 
 const GalleryWrapper = styled.section`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   grid-gap: 3em;
   grid-auto-flow: dense;
-  @media (max-width: 280px) {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  @media (max-width: 585px) {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-gap: 2em;
   }
 `;
