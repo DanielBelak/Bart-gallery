@@ -151,21 +151,6 @@ const PopUpInsert = ({ popUpState, setPopUpState, title, setUpdate }) => {
 };
 export default PopUpInsert;
 
-const CloseBtn = styled.div`
-  cursor: pointer;
-  font-size: 1.6rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 1em;
-  width: auto;
-  img {
-    padding-right: 0.5em;
-  }
-`;
 const PhotosForm = styled.form`
   display: flex;
   flex-direction: column;
